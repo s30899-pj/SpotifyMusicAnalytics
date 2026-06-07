@@ -1,29 +1,31 @@
-# Spotify Music Analytics
+# 🎧 Spotify Music Analytics
 
-Interaktywna aplikacja Streamlit do analizy danych o utworach Spotify. Projekt
+Interaktywna aplikacja **Streamlit** do analizy danych o utworach Spotify. Projekt
 powstaje jako zadanie zaliczeniowe z analizy danych z wykorzystaniem bibliotek
-Pandas, NumPy, Matplotlib i Seaborn.
+**Pandas, NumPy, Matplotlib i Seaborn**.
+
+Aplikacja ma ciemny motyw w barwach Spotify, własne logo (ikona Spotify połączona
+ze słupkami „equalizera danych") oraz układ wzorowany na dashboardach Streamlit —
+karty z ramkami, metryki z deltami i zakładki tematyczne.
 
 ## Cel analizy
 
 Projekt odpowiada na pytanie:
 
-> Jak cechy audio utworów, takie jak taneczność, energia, tempo, głośność i
-> pozytywność nastroju, wiążą się z popularnością oraz gatunkiem muzycznym?
+> Jak cechy audio utworów (taneczność, energia, tempo, głośność, pozytywność) wiążą
+> się z popularnością, gatunkiem muzycznym oraz jak popularność zmienia się w czasie?
 
-Aplikacja pozwala filtrować dane, sortować rankingi, porównywać gatunki,
-oglądać korelacje oraz generować krótkie wnioski z aktualnie wybranych danych.
+Aplikacja pozwala filtrować dane, sortować rankingi, porównywać gatunki, oglądać
+korelacje, śledzić trendy w czasie, analizować nastrój utworów oraz generować
+krótkie, automatyczne wnioski z aktualnie wybranych danych.
 
 ## Dane
 
 Docelowe źródło danych:
 https://www.kaggle.com/datasets/joebeachcapital/30000-spotify-songs
 
-W repozytorium znajduje się pełny plik `data/spotify_songs.csv`, dzięki czemu
-projekt uruchamia się autonomicznie. Plik zawiera 32 833 rekordy i pochodzi z
-publicznego zbioru Spotify Songs udostępnianego również w repozytorium
-TidyTuesday:
-https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv
+W repozytorium znajduje się pełny plik `data/spotify_songs.csv` (32 833 rekordy),
+dzięki czemu projekt uruchamia się **autonomicznie**, bez pobierania czegokolwiek.
 
 ## Uruchomienie
 
@@ -38,41 +40,84 @@ streamlit run app.py
 pytest
 ```
 
-## Struktura programu
+## Sterowanie klawiaturą
 
-- `app.py` - interfejs Streamlit.
-- `SpotifyDataLoader` - wczytuje CSV i sprawdza wymagane kolumny.
-- `SpotifyDataCleaner` - czyści dane, konwertuje typy, tworzy `release_year`
+Wszystkie elementy interfejsu są dostępne z klawiatury (wymaganie A6): `Tab`
+przełącza pola, strzałki regulują suwaki i przełączają zakładki, `Enter`/`Spacja`
+zatwierdzają wybór, a pola wielokrotnego wyboru obsługują wpisywanie i strzałki.
+
+## Struktura programu i relacje klas
+
+Logika jest oddzielona od interfejsu. Warstwa danych i analizy mieszka w pakiecie
+`src/spotify_analytics`, a `app.py` jest tylko cienkim interfejsem Streamlit.
+
+- `app.py` — interfejs Streamlit (układ, filtry, wykresy, motyw, logo).
+- `assets/logo.svg` — autorskie logo z wkomponowaną ikoną Spotify.
+- `.streamlit/config.toml` — ciemny motyw w barwach Spotify.
+- `SpotifyDataLoader` — wczytuje CSV i waliduje wymagane kolumny.
+- `SpotifyDataCleaner` — czyści dane, konwertuje typy, tworzy `release_year`
   i `duration_min`.
-- `SpotifyAnalyzer` - wykonuje filtrowanie, sortowanie, grupowanie, rankingi
-  i korelacje. W analizie nastroju wykorzystuje NumPy do wektorowej klasyfikacji
-  utworów na podstawie energii i pozytywności.
-- `SpotifyVisualizer` - tworzy wykresy Matplotlib/Seaborn.
-- `InsightGenerator` - generuje tekstowe wnioski z wyników.
-- `SpotifyAnalyticsFacade` - upraszcza komunikację między interfejsem i logiką.
+- `SpotifyAnalyzer` — filtrowanie, sortowanie, grupowanie, rankingi, korelacje,
+  trend w czasie oraz klasyfikacja nastroju (wektorowo, z użyciem NumPy).
+- `SpotifyVisualizer` — wykresy Matplotlib/Seaborn w ciemnym motywie.
+- `InsightGenerator` — generuje tekstowe wnioski z wyników.
+- `AnalysisStrategy` + strategie konkretne — wymienne algorytmy analizy.
+- `SpotifyAnalyticsFacade` — spina wszystkie komponenty i udostępnia je interfejsowi.
 
-## Wzorce projektowe
+Relacje: `SpotifyAnalyticsFacade` **komponuje** (kompozycja) loader, cleaner,
+analyzer, insights oraz słownik strategii. Strategie **dziedziczą** po wspólnej
+klasie abstrakcyjnej `AnalysisStrategy` i **polimorficznie** udostępniają metodę
+`run(...)`. Interfejs (`app.py`) nie zna szczegółów analiz — rozmawia wyłącznie
+z fasadą i analizatorem.
 
-Projekt wykorzystuje wzorzec **Facade**. Klasa `SpotifyAnalyticsFacade` ukrywa
-szczegóły wczytywania, czyszczenia i analizy danych, dzięki czemu `app.py`
-pozostaje czytelny.
+## Zastosowane paradygmaty programowania
 
-W module `strategies.py` zastosowano wzorzec **Strategy**. Różne analizy mogą
-być rozwijane jako osobne strategie bez przebudowy głównej logiki aplikacji.
+Z wykładu wykorzystano paradygmaty, które realnie poprawiają strukturę projektu:
 
-## Uzasadnienie metod i wykresów
+- **Obiektowy** — każdy etap przetwarzania to osobna klasa o jednej
+  odpowiedzialności (loader, cleaner, analyzer, visualizer, insights, fasada).
+- **Abstrakcja i dziedziczenie** — `AnalysisStrategy` to klasa abstrakcyjna
+  (`abc.ABC` z `@abstractmethod`), po której dziedziczą konkretne strategie.
+- **Polimorfizm** — fasada wywołuje `strategy.run(...)` jednakowo dla każdej
+  strategii, niezależnie od jej rodzaju.
+- **Enkapsulacja** — szczegóły wczytywania, czyszczenia i liczenia są ukryte
+  w klasach; interfejs korzysta tylko z ich publicznych metod.
+- **Kompozycja** — fasada składa się z gotowych obiektów współpracowników,
+  zamiast po nich dziedziczyć.
+- **Funkcyjny i deklaratywny** — analizy opisują *co* policzyć, a nie *jak*:
+  wektorowe operacje Pandas/NumPy (`groupby`, `agg`, `corr`, `np.select`) oraz
+  listy składane przy budowaniu wniosków.
 
-- Histogram popularności pokazuje rozkład zmiennej liczbowej `track_popularity`.
-- Wykres słupkowy średniej popularności porównuje kategorie, czyli gatunki.
-- Boxplot popularności według gatunku pokazuje medianę, rozrzut i wartości
-  odstające, więc jest lepszy niż sama średnia.
-- Heatmapa korelacji jest dopasowana do wielu zmiennych numerycznych i pozwala
-  szybko ocenić siłę związków między cechami audio.
-- Wykres punktowy `energy` vs `valence` pokazuje charakter utworów: spokojny,
-  energetyczny, pozytywny lub mroczniejszy.
+## Zastosowane wzorce projektowe
 
-## Obsługa błędów
+- **Facade (strukturalny)** — `SpotifyAnalyticsFacade` ukrywa złożoność wczytywania,
+  czyszczenia i analizy danych za prostym interfejsem (`load_dataset`, `run_strategy`),
+  dzięki czemu `app.py` pozostaje czytelny.
+- **Strategy (behawioralny)** — w `strategies.py` każda analiza (gatunki, korelacje,
+  nastrój, trend) jest osobną, wymienną strategią. Nową analizę dodaje się przez
+  utworzenie kolejnej klasy i zarejestrowanie jej w fasadzie — bez zmian w interfejsie.
+
+## Uzasadnienie metod i wykresów (dopasowanie do typu danych)
+
+- **Histogram** popularności pokazuje rozkład jednej zmiennej liczbowej
+  (`track_popularity`) — idealny do oceny skośności i typowych wartości.
+- **Wykres słupkowy** średniej popularności porównuje wartość liczbową między
+  kategoriami (gatunkami) — naturalny wybór dla zmiennej kategorycznej.
+- **Boxplot** popularności według gatunku pokazuje medianę, rozrzut i wartości
+  odstające, więc niesie więcej informacji niż sama średnia.
+- **Wykres liniowy** trendu jest dopasowany do danych uporządkowanych w czasie
+  (rok wydania) i czytelnie pokazuje kierunek zmian popularności.
+- **Heatmapa korelacji** jest dopasowana do wielu zmiennych numerycznych naraz
+  i pozwala szybko ocenić siłę i znak związków między cechami audio.
+- **Wykres punktowy** `energy` vs `valence` pokazuje charakter utworów (spokojny,
+  energetyczny, pozytywny, mroczniejszy), a wielkość punktu koduje popularność.
+
+Wnioski liczbowe (np. „która cecha najsilniej koreluje z popularnością") są
+wyznaczane na danych, więc pozostają sensowne dla dowolnego wyboru filtrów.
+
+## Obsługa błędów (nieprzerwana egzekucja)
 
 Program obsługuje m.in. brak pliku CSV, pusty plik, błędny format CSV, brak
-wymaganych kolumn i brak danych po zastosowaniu filtrów. Zamiast przerywać
-działanie, aplikacja pokazuje użytkownikowi czytelny komunikat.
+wymaganych kolumn oraz brak danych po zastosowaniu filtrów. Zamiast przerywać
+działanie wyjątkiem, aplikacja pokazuje użytkownikowi czytelny komunikat
+(`st.error` / `st.warning`) i zatrzymuje się bezpiecznie.

@@ -1,2 +1,1 @@
-"""Tools for the Spotify Music Analytics Streamlit project."""
-
+"""Narzędzia projektu Spotify Music Analytics (aplikacja Streamlit)."""

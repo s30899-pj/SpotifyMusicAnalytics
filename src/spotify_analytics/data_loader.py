@@ -6,11 +6,11 @@ from spotify_analytics.config import REQUIRED_COLUMNS
 
 
 class DataLoadingError(Exception):
-    """Raised when the dataset cannot be loaded correctly."""
+    """Wyjątek zgłaszany, gdy nie da się poprawnie wczytać zbioru danych."""
 
 
 class SpotifyDataLoader:
-    """Loads the Spotify CSV dataset and validates its required schema."""
+    """Wczytuje zbiór danych Spotify z pliku CSV i sprawdza wymagane kolumny."""
 
     def __init__(self, path: Path):
         self.path = Path(path)

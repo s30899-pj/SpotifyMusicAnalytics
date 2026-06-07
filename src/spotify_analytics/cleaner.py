@@ -4,7 +4,7 @@ from spotify_analytics.config import AUDIO_FEATURES, REQUIRED_COLUMNS
 
 
 class SpotifyDataCleaner:
-    """Prepares raw Spotify data for analysis."""
+    """Przygotowuje surowe dane Spotify do analizy."""
 
     def clean(self, data: pd.DataFrame) -> pd.DataFrame:
         cleaned = data.copy()

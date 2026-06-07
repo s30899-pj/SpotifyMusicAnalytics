@@ -10,11 +10,12 @@ from spotify_analytics.strategies import (
     CorrelationStrategy,
     GenrePopularityStrategy,
     MoodStrategy,
+    TrendStrategy,
 )
 
 
 class SpotifyAnalyticsFacade:
-    """Facade joining loading, cleaning, analysis and insight generation."""
+    """Fasada łącząca wczytywanie, czyszczenie, analizę i generowanie wniosków."""
 
     def __init__(self, data_path: Path):
         self.loader = SpotifyDataLoader(data_path)
@@ -25,6 +26,7 @@ class SpotifyAnalyticsFacade:
             "genre_popularity": GenrePopularityStrategy(),
             "correlation": CorrelationStrategy(),
             "mood": MoodStrategy(),
+            "trend": TrendStrategy(),
         }
 
     def load_dataset(self) -> pd.DataFrame:

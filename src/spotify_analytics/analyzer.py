@@ -7,7 +7,7 @@ from spotify_analytics.config import AUDIO_FEATURES
 
 
 class SpotifyAnalyzer:
-    """Contains pure analytical operations used by the Streamlit interface."""
+    """Zawiera czyste operacje analityczne wykorzystywane przez interfejs Streamlit."""
 
     def summary(self, data: pd.DataFrame) -> dict[str, float]:
         return {
@@ -89,6 +89,19 @@ class SpotifyAnalyzer:
     def audio_feature_correlations(self, data: pd.DataFrame) -> pd.DataFrame:
         columns = ["track_popularity", *AUDIO_FEATURES]
         return data[columns].corr(numeric_only=True).round(3)
+
+    def popularity_trend(self, data: pd.DataFrame) -> pd.DataFrame:
+        return (
+            data.groupby("release_year", as_index=False)
+            .agg(
+                average_popularity=("track_popularity", "mean"),
+                track_count=("track_name", "count"),
+                average_energy=("energy", "mean"),
+                average_danceability=("danceability", "mean"),
+            )
+            .sort_values("release_year")
+            .reset_index(drop=True)
+        )
 
     def mood_summary(self, data: pd.DataFrame) -> pd.DataFrame:
         labelled = data.copy()

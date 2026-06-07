@@ -2,7 +2,7 @@ import pandas as pd
 
 
 class InsightGenerator:
-    """Builds short textual conclusions from computed analytical results."""
+    """Buduje krótkie, tekstowe wnioski na podstawie wyników analiz."""
 
     def popularity_insight(self, data: pd.DataFrame) -> str:
         average = data["track_popularity"].mean()
@@ -53,6 +53,22 @@ class InsightGenerator:
             f"Korelacja jest {direction} i {strength} ({value:.2f})."
         )
 
+    def trend_insight(self, trend: pd.DataFrame) -> str:
+        if len(trend) < 2:
+            return "Za mało roczników, aby ocenić trend popularności w czasie."
+
+        first = trend.iloc[0]
+        last = trend.iloc[-1]
+        change = last["average_popularity"] - first["average_popularity"]
+        direction = "rośnie" if change > 0 else "spada"
+        peak = trend.loc[trend["average_popularity"].idxmax()]
+        return (
+            f"Między rokiem {int(first['release_year'])} a {int(last['release_year'])} "
+            f"średnia popularność {direction} (o {abs(change):.1f} punktu). "
+            f"Najwyższą średnią popularność osiągnęły utwory z roku "
+            f"{int(peak['release_year'])}."
+        )
+
     def mood_insight(self, mood_summary: pd.DataFrame) -> str:
         if mood_summary.empty:
             return "Brak danych do analizy nastroju."
@@ -68,9 +84,12 @@ class InsightGenerator:
         correlation = analyzer.audio_feature_correlations(data)
         mood_summary = analyzer.mood_summary(data)
 
+        trend = analyzer.popularity_trend(data)
+
         return [
             self.popularity_insight(data),
             self.genre_insight(genre_ranking),
             self.correlation_insight(correlation),
+            self.trend_insight(trend),
             self.mood_insight(mood_summary),
         ]
