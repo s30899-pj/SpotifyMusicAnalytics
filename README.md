@@ -1,12 +1,9 @@
 # 🎧 Spotify Music Analytics
 
-Interaktywna aplikacja **Streamlit** do analizy danych o utworach Spotify. Projekt
-powstaje jako zadanie zaliczeniowe z analizy danych z wykorzystaniem bibliotek
+Interaktywna aplikacja do analizy danych o utworach Spotify. Projekt
+powstał wykorzystaniem bibliotek
 **Pandas, NumPy, Matplotlib i Seaborn**.
 
-Aplikacja ma ciemny motyw w barwach Spotify, własne logo (ikona Spotify połączona
-ze słupkami „equalizera danych") oraz układ wzorowany na dashboardach Streamlit —
-karty z ramkami, metryki z deltami i zakładki tematyczne.
 
 ## Cel analizy
 
